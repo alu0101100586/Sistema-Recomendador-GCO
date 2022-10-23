@@ -18,6 +18,11 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include "../lib/matrix_utility.h"
+#include "../lib/neighbours.h"
+
+enum Metrics {Pearson, Cosine, Euclidean};
+enum Prediction {Simple, Mean};
 
 /**
  * Función auxiliar que prepara un fichero para modificarlo
@@ -34,6 +39,12 @@ void ReadFile(std::string file_name, std::vector<std::string>& input_txt);
  * 
  */
 void ExecutionError();
+
+void PearsonCorrelation(/*params*/);
+
+void CosineDistance(/*params*/);
+
+void EuclideanDistance(/*params*/);
 
 /**
  * @brief Función Principal del programa
