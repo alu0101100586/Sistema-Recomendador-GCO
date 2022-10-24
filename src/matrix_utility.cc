@@ -1,9 +1,9 @@
 /**
  * @file matrix_utility.cc
- * @author Jonay Estévez Díaz (alu0101100286@ull.edu.es)
- * @author Bruno Lorenzo Arroyo Pedraza (alu0000000000@ull.edu.es)
- * @author Carla Cristina Olivares Rodriguez (alu000000000@ull.edu.es)
- * @author Jose Miguel Hernández Santana (alu000000000@ull.edu.es)
+ * @author Jonay Estévez Díaz (alu0101100586@ull.edu.es)
+ * @author Bruno Lorenzo Arroyo Pedraza (alu0101123677@ull.edu.es)
+ * @author Carla Cristina Olivares Rodriguez (alu0101120218@ull.edu.es)
+ * @author Jose Miguel Hernández Santana (alu0101101507@ull.edu.es)
  * 
  * @brief Clase Container, que nos permite utilizar una matriz como 
  *        container de la matriz de utilidad
@@ -29,7 +29,7 @@ MatrixUtility::MatrixUtility() {
  * 
  * @param users_items 
  */
-MatrixUtility::MatrixUtility(std::vector<std::vector<int>> users_items) {
+MatrixUtility::MatrixUtility(std::vector<std::vector<double>> users_items) {
   user_items_ = users_items;
 }
 
@@ -39,7 +39,16 @@ MatrixUtility::MatrixUtility(std::vector<std::vector<int>> users_items) {
  * @param users_items 
  */
 MatrixUtility::MatrixUtility(std::vector<std::string> users_lines) {
-  //completar pito sucio
+  std::vector<std::string> aux;
+  user_items_.resize(users_lines.size());
+  for (int i = 0; i < users_lines.size(); i++) {
+    aux.clear();
+    aux = Split(users_lines[i]);
+    for (int j = 0; j < aux.size(); j++) {
+      if(aux[j] == "-") user_items_[i].push_back(INFINITY);
+      else              user_items_[i].push_back(std::stod(aux[j]));
+    }
+  }
 }
 
 /**
@@ -47,7 +56,7 @@ MatrixUtility::MatrixUtility(std::vector<std::string> users_lines) {
  * 
  */
 MatrixUtility::~MatrixUtility() {
-
+  
 }
 
 /**
@@ -55,7 +64,7 @@ MatrixUtility::~MatrixUtility() {
  * 
  * @return std::vector<std::vector<int>> 
  */
-std::vector<std::vector<int>> MatrixUtility::GetUserItems() const {
+std::vector<std::vector<double>> MatrixUtility::GetUserItems() const {
   return user_items_;
 }
 
@@ -64,7 +73,7 @@ std::vector<std::vector<int>> MatrixUtility::GetUserItems() const {
  * 
  * @param user_items_ 
  */
-void MatrixUtility::SetUserItems(std::vector<std::vector<int>> new_user_items) {
+void MatrixUtility::SetUserItems(std::vector<std::vector<double>> new_user_items) {
   user_items_ = new_user_items;
 }
 
@@ -75,7 +84,7 @@ void MatrixUtility::SetUserItems(std::vector<std::vector<int>> new_user_items) {
  * @param j 
  * @return int& 
  */
-int& MatrixUtility::At(int i, int j) {
+double& MatrixUtility::At(int i, int j) {
   return user_items_[i][j];
 }
 
@@ -94,6 +103,7 @@ std::ostream& operator<<(std::ostream& os, const MatrixUtility m) {
     }
     os << "|\n";
   }
+  return os;
 }
 
 /**
@@ -102,6 +112,13 @@ std::ostream& operator<<(std::ostream& os, const MatrixUtility m) {
  * @param line 
  * @return std::vector<std::string> 
  */
-std::vector<std::string> Split(std::string line) {
-  
+std::vector<std::string> MatrixUtility::Split(std::string line) {
+  std::vector<std::string> aux;
+  std::istringstream totalString(line);
+  std::string piece;
+  while (!totalString.eof()) {
+    totalString >> piece;
+    aux.push_back(piece);
+  }
+  return aux;
 }
