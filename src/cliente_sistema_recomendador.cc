@@ -18,8 +18,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include "../lib/matrix_utility.h"
-#include "../lib/neighbours.h"
+#include "../include/matrix_utility.h"
+#include "../include/neighbours.h"
 
 enum Metrics {Pearson, Cosine, Euclidean};
 enum Prediction {Simple, Mean};
@@ -54,7 +54,7 @@ void EuclideanDistance(/*params*/);
  * @return int 
  */
 int main(int argc, char const *argv[]) {
-   switch (argc) {
+  switch (argc) {
     case 5:
       /* codigo para el tratamiento de datos*/
       break;

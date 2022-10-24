@@ -14,7 +14,7 @@
  * 
  */
 
-#include "../lib/matrix_utility.h"
+#include "../include/matrix_utility.h"
 
 /**
  * @brief Construct a new MatrixUtility::MatrixUtility object
@@ -39,7 +39,7 @@ MatrixUtility::MatrixUtility(std::vector<std::vector<int>> users_items) {
  * @param users_items 
  */
 MatrixUtility::MatrixUtility(std::vector<std::string> users_lines) {
-  //completar
+  //completar pito sucio
 }
 
 /**
