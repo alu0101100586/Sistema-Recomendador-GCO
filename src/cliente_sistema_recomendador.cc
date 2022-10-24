@@ -54,7 +54,7 @@ void EuclideanDistance(/*params*/);
  * @return int 
  */
 int main(int argc, char const *argv[]) {
-   switch (argc) {
+  switch (argc) {
     case 5:
       /* codigo para el tratamiento de datos*/
       break;
@@ -62,7 +62,25 @@ int main(int argc, char const *argv[]) {
     default:
       ExecutionError();
       return 1;
-   }
+  }
+  
+  return 0;
+}
+
+/**
+ * @brief Función que muestra un error si se ejecuta mal el programa
+ * 
+ */ 
+int protected_main(int argc, char const *argv[]) {
+  switch (argc) {
+    case 5:
+      /* codigo para el tratamiento de datos*/
+      break;
+    
+    default:
+      ExecutionError();
+      return 1;
+  }
   
   return 0;
 }
