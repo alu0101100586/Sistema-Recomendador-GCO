@@ -25,6 +25,20 @@ Por tanto, la ejecución por línea de comando se realizaría de la siguiente ma
 
 ## Descripción del Código
 
+### Inicialización
+
+### Correlación de Pearson
+
+### Distancia Euclidea
+
+### Calculo de los k-Vecinos
+
+### Predicción Simple
+
+### Diferencia con Media
+
+### Rellenar la Matriz Resultante
+
 ## Ejemplo de Ejecución
 
 ```bash
