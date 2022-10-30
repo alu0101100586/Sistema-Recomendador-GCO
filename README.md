@@ -56,7 +56,7 @@ for i in matrix_lines:
  Además se creó un vector donde se almacena qué usuarios tienen algún valor el cual se tenga que predecir, esto es una posición en la matriz cuyo valor sea **-**.
  
 ## Métricas
-Las tres funciones que tenemos para el cálculo de la similitud entre usuarios fueron realizadas a partir de las propias definiciones y formulas, por lo que las funciones quedaron de la siguiente manera
+Las tres funciones que tenemos para el cálculo de la similitud entre usuarios fueron realizadas a partir de las propias definiciones y formulas, por lo que las funciones quedaron de la siguiente manera. Además tras cada calculo, se realizará en todas las funciones una llamada a otra función que nos proporcionará como ha sido el calculo, es decir, el tipo de distancia y/o el tipo de correlación.
 
 ### Correlación de Pearson
 A esta función debemos pasarle dos usuarios, es decir, dos vectores los cuales tandrán los items de cada uno. Luego en realizamos los calculos necesarios para poder realizar la fórmula re correlación de Pearson, clculando los que hay dentro de las raices, así como aplicarles las raices y devolvemos el resultado de la divición final, el cual será el valor de la similitud.
@@ -85,19 +85,163 @@ def pearson_correlation_coefficient(user_u, user_v):
   ```
 
 ### Distancia Euclidea
-Al igual que en la función anteriormente descrita, le pasamos a la función dos usuarios y realizamos los calculos
+Al igual que en la función anteriormente descrita, le pasamos a la función dos usuarios y realizamos los calculos, en este caso vamos sumando todas las sumas elevadas al cuadrado y por último el resultado de la similitud será la raíz de dicho sumatorio.
+
+```python
+def euclidean_distance(user_u, user_v):
+  user_vector_u, user_vector_v = common_items(user_u, user_v)  
+  result = 0.0
+  for i in range(len(user_vector_u)):
+    if (user_vector_u[i] and user_vector_v[i]):
+      result += ((user_vector_u[i] - user_vector_v[i]) ** 2)
+
+  result = math.sqrt(result)
+  return result
+```
 
 ### Distancia Coseno
+Para la distancia coseno, tendremos los mismos parámetos que las otras funciones, en calculo que se realizará primero calculando los componentes de la formula y luego realizar la divición del numerador entre los dos denominadores dentro de una raíz, de la siguiente manera.
+
+```python
+def cosine_distance(user_u, user_v):
+  user_vector_u, user_vector_v = common_items(user_u, user_v)
+  numerator = 0.0
+  denominator1 = 0.0
+  denominator2 = 0.0
+  result = 0.0
+  
+  # Calculo de los componentes de la formula
+  for i in range(len(user_vector_u)):
+      numerator += user_vector_u[i] * user_vector_v[i]
+      denominator1 += user_vector_u[i] ** 2
+      denominator2 += user_vector_v[i] ** 2
+  
+  # Calculo de la distancia
+  result += (numerator /(math.sqrt(denominator1) * (math.sqrt(denominator2))))
+  return result
+```
 
 ## Calculo de los k-Vecinos
+Parasemos como parámetros, la métyrica elegida, el numero de vecinos, el usuario concreto que queremos explorar sus vecicnos y la posición el item a predecir.
 
+Seleccionamos la fila de la matriz de msimilitud del usuario y la ordenamos. Dependiendo de la métrica utilizada comprobaremos la similitud de mayor a menos o de menor a mayor, pearson y coseno para valores altos y euclidea para los menores.
+
+Luego se procede con la valoración de los vecinos que hayan votado a dicho item, si el vecino no lo ha valorado, no se entrá en cuanta. Llegados aquí ordenamos en base a la similitud y se selecciona los necesarios en base al numero de vecinos elegido.
+
+Como resultado se devuelve un vector de dos elmentos a modo de **pair**.
+
+```python
+def calculate_neighbors(metrics, neighbors, user, position):
+  neighbors_k = []
+  order_user_row = deepcopy(similarity_matrix[user])
+  
+  # Dependiendo de la metrica se ordena de mayor a menor o de menor a mayor
+  if(metrics == "Pearson" or metrics == 'Coseno'):
+    order_user_row.sort(reverse=True)
+  else:
+    order_user_row.sort(reverse=False)
+  
+  order_user_1 = deepcopy(similarity_matrix[user])
+  order_user_2 = deepcopy(order_user_1)
+  coincident_neighbors = []
+
+  for element in order_user_row:
+    user = order_user_1.index(element)
+    order_user_1[user] = 0
+    if matrix[user][position] != '-':
+      coincident_neighbors.append(user)
+  
+  # vecinos que se van a utilizar para el calculo de la prediccion
+  count_neighbors = coincident_neighbors[0:neighbors]
+
+  # Se calcula la similitud entre el usuario y los vecinos
+  for neighbor in count_neighbors:
+    similitary_value = order_user_2[neighbor]
+    neighbors_k.append((neighbor, similitary_value))
+  
+  print("Vecinos utilizados para calcular:" + str(user) + " -> Item: " + str(position)) 
+  print(neighbors_k)    
+  return neighbors_k
+```
 ## Predicciones
+Se desarrollaron dos opciones, la Prediccioón SImple y la Diferencia con la media. Al igual que las métricas el desarrollo de las siguientes funciones se realizó mediante la utilización de la fórmula.
 
 ### Predicción Simple
+Pasando como parametros el valor y los vecinos calculados por lo descrito anteriormente, realizamos el sumarorio que resá nuestro numerador para luego realizar el sumarotio que pertenede al denominador, devolviendo así el serultado de la división. Finalmente, si el resultado es menor que 0 lo redondeamos a 0 o si es mayor que 5, se redondeará a 5.
+
+```python
+def simple_prediction(val, neighbors_k):
+  nominator = 0.0
+  denominator = 0.0
+  result = 0.0
+
+  for i in neighbors_k:
+    nominator += i[1] * matrix[i[0]][val]
+    denominator += abs(i[1])
+
+  result += nominator / float(denominator)
+  result = float("{:.4f}".format(result))
+
+  if result < 0:
+    result = 0
+  elif result > 5:
+    result = 5
+
+  return result
+```
 
 ### Diferencia con Media
+Resivirá como parámetros, el vector del usuario, así como el valor y los vecinos calculados, y al igual que en la anterior, realizamos el calculo del numerados y denominados tal y como la fórmula lo describe. devolviendo así el resultado, el cual si tiene un valor fuera del rango, será reasignado a 0 o 5 al iguel que en la Predicción Simple.
 
+```python
+def difference_prediction(user_v, val, neighbours_k):
+  numerator = 0.0
+  denominator = 0.0
+  result = 0.0
+  user_mean_v = mean(user_v)
+  medias = []
+  
+  #Almacenamos todas las medias 
+  for i in neighbours_k:
+    medias.append(mean(matrix[i[0]]))
+  
+  for i in neighbours_k:
+    numerator += i[1] * (matrix[i[0]][val] - mean(matrix[i[0]]))
+    denominator += abs(i[1])
+
+  result = user_mean_v + (numerator / float(denominator))
+  
+  if result < 0:
+    result = 0
+  elif result > 5:
+    result = 5
+
+  return result
+```
 ## Rellenar la Matriz Resultante
+Para rellenar la matrix resultante de toda la operatoria, primero hacemos dos dintenciones, dependiendo de la predicción elegida por el usuario. Primero recorremos el vector de usuarios a predecir, y para dasa uno, recorremos los items que tiene para buscar el que corresponde con **-**, y aplicamos la predicción seleccionada, para terminalk devolviendo la matriz completa.
+
+```python
+  if(prediction == "Simple"):
+    for i in predict_users:
+      for j in range(len(matrix[i])):
+        if(matrix_rslt[i][j] == "-"):
+          print("------------------------------------------------------------------------------------------------------------------------------------------")
+          neighbors_k = calculate_neighbors(metrics, neighbours, i, j)
+          pred_aux = simple_prediction(j, neighbors_k)
+          matrix_rslt[i][j] = pred_aux
+          print("Resultado prediccion: " + str(pred_aux))
+  else:
+    for i in predict_users:
+      for j in range(len(matrix[i])):
+        if(matrix_rslt[i][j] == "-"):
+          print("------------------------------------------------------------------------------------------------------------------------------------------")
+          neighbors_k = calculate_neighbors(metrics, neighbours, i, j)
+          pred_aux = difference_prediction(matrix[i], j, neighbors_k)
+          matrix_rslt[i][j] = pred_aux
+          print("Resultado prediccion - Usuario " + str(i) + " -> Item " 
+                + str(j) + " = " + str(pred_aux))
+```
 
 # Ejemplo de Ejecución
 
